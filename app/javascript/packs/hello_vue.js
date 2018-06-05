@@ -5,18 +5,38 @@
 // like app/views/layouts/application.html.erb.
 // All it does is render <div>Hello Vue</div> at the bottom of the page.
 
-import Vue from 'vue'
-import App from '../app.vue'
-
-document.addEventListener('DOMContentLoaded', () => {
-  const el = document.body.appendChild(document.createElement('hello'))
-  const app = new Vue({
-    el,
-    render: h => h(App)
-  })
-
-  console.log(app)
-})
+import Vue from 'vue/dist/vue.esm'
+import TurbolinksAdapter from 'vue-turbolinks'
+import VueResource from 'vue-resource'
+ 
+Vue.use(VueResource)
+Vue.use(TurbolinksAdapter)
+ 
+document.addEventListener('turbolinks:load', () => {
+  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+ 
+  var element = document.getElementById("user-form")
+ 
+  if (element != null) {
+    var user = JSON.parse(element.dataset.user)
+ 
+    var app = new Vue({
+      el: element,
+      data: function() {
+        return { user: user }
+      },
+      methods: {
+        saveUser() {
+          this.$http.post('/users', { user: this.user }).then(response => {
+            Turbolinks.visit(`/users/${response.body.id}`)
+          }, response => {
+            console.log(response)
+          })
+        }
+      }
+    });
+  }
+});
 
 
 // The above code uses Vue without the compiler, which means you cannot
