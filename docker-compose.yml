@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
   website:
@@ -8,13 +8,12 @@ services:
       - '3000:3000'
     volumes:
       - '.:/vue_example'
-    volumes_from:
-      - box
+      - 'box:/box'
 
   box:
     image: busybox
     volumes:
-      - /box
+      - '.:/box'
 
 volumes:
   box:
